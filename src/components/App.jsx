@@ -15,8 +15,9 @@ export const App = () => {
   const prevQuery = useRef('');
 
   useEffect(() => {
-    const fetchData = async () => {
-      setlsLoading(true);
+    async function fetchData() {
+      try {
+        setlsLoading(true);
       const res = await getImages(query, page);
       setlsLoading(false);
 
@@ -24,7 +25,7 @@ export const App = () => {
         Notify.failure(
           'Sorry, there are no images matching your search query. Please try again.'
         );
-        setError(true);
+        setError(error);
         setPage(prevPage.current);
         setQuery(prevQuery.current);
         return;
@@ -41,16 +42,26 @@ export const App = () => {
 
       setImages(images => [...images, ...res.hits]);
 
-      if (page !== 1 && !error) {
-        scroll('bottom');
-      } else {
-        scroll('top');
-      }
-    };
-
-    if (query && !error) {
+      // if (totalPages && page >= totalPages) {
+      //   Notify.warning(
+      //     "We're sorry, but you've reached the end of search results."
+      //   );
+      // }
+      } catch (error) {
+        setError(error);
+        setlsLoading(false);
+    }
+      
+      // if (page !== 1 && !error) {
+      //   scroll('bottom');
+      // } else {
+      //   scroll('top');
+      // }
+    } 
+    if (query) {
       fetchData();
     }
+    
   }, [page, query, error]);
 
   useEffect(() => {
@@ -82,18 +93,18 @@ export const App = () => {
     setError(false);
   };
 
-  const scroll = direction => {
-    const { clientHeight, scrollHeight } = document.documentElement;
+  // const scroll = direction => {
+  //   const { clientHeight, scrollHeight } = document.documentElement;
 
-    setTimeout(
-      () =>
-        window.scrollBy({
-          top: direction === 'top' ? -scrollHeight : clientHeight - 180,
-          behavior: 'smooth',
-        }),
-      1
-    );
-  };
+    // setTimeout(
+  //     () =>
+  //       window.scrollBy({
+  //         top: direction === 'top' ? -scrollHeight : clientHeight - 180,
+  //         behavior: 'smooth',
+  //       }),
+  //     1
+  //   );
+  // };
 
   const isNotEmpty = images.length !== 0;
   const isNotEndList = page < totalPages;
